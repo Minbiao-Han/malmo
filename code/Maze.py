@@ -26,6 +26,7 @@ import os
 import sys
 import time
 import json
+import sys
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -33,6 +34,39 @@ else:
     import functools
 
     print = functools.partial(print, flush=True)
+
+
+def getLayout(name):
+    matrix = tryToLoad(name)
+    return matrix
+
+
+def tryToLoad(fullname):
+    if (not os.path.exists(fullname)): return None
+    f = open(fullname)
+    Matrix = [line.strip() for line in f]
+    f.close()
+    return Matrix
+
+
+level_mat = getLayout("bigMaze.lay")
+
+def GenBlock(x, y, z, blocktype):
+    return '<DrawBlock x="' + str(x) + '" y="' + str(y) + '" z="' + str(z) + '" type="' + blocktype + '"/>'
+
+
+def mazeCreator():
+    genstring = ""
+    for i in range(len(level_mat)):
+        for j in range(len(level_mat[0])):
+            if level_mat[i][j] == "%":
+                genstring += GenBlock(i, 56, j, "diamond_block") + "\n"
+                genstring += GenBlock(i, 57, j, "diamond_block") + "\n"
+                genstring += GenBlock(i, 58, j, "diamond_block") + "\n"
+            else:
+                pass
+
+    return genstring
 
 # More interesting generator string: "3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"
 
@@ -47,18 +81,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <ServerHandlers>
                   <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
                   <DrawingDecorator>
-                    <DrawCuboid x1="1" y1="55" z1="-1" x2="-30" y2="59" z2="30" type="diamond_block"/>
-                    <DrawCuboid x1="0" y1="56" z1="0" x2="-29" y2="59" z2="29" type="air"/>
-                    <DrawCuboid x1="-11" y1="55" z1="11" x2="-18" y2="59" z2="18" type="diamond_block"/>
-                    <DrawCuboid x1="-12" y1="56" z1="12" x2="-17" y2="59" z2="17" type="air"/>
-                    <DrawCuboid x1="-11" y1="56" z1="14" x2="-12" y2="59" z2="15" type="air"/>
-                    <DrawCuboid x1="-7" y1="56" z1="22" x2="-22" y2="59" z2="22" type="diamond_block"/>
-                    <DrawCuboid x1="-7" y1="56" z1="7" x2="-22" y2="59" z2="7" type="diamond_block"/>
-                    <DrawCuboid x1="-7" y1="56" z1="10" x2="-7" y2="59" z2="19" type="diamond_block"/>
-                    <DrawCuboid x1="-7" y1="56" z1="14" x2="-2" y2="59" z2="15" type="diamond_block"/>
-                    <DrawCuboid x1="-2" y1="56" z1="2" x2="-2" y2="59" z2="13" type="diamond_block"/>
-                    <DrawCuboid x1="-4" y1="56" z1="16" x2="-4" y2="59" z2="27" type="diamond_block"/>
-                    <DrawBlock x="-28" y="55" z="2" type="obsidian"/>
+                    ''' + mazeCreator() + '''
                   </DrawingDecorator>
                   <ServerQuitFromTimeUp timeLimitMs="30000"/>
                   <ServerQuitWhenAnyAgentFinishes/>
@@ -67,7 +90,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
               <AgentSection mode="Survival">
                 <Name>MalmoTutorialBot</Name>
-                <AgentStart>                <Placement x="-1" y="58" z="1" yaw="90"/>            </AgentStart>
+                <AgentStart>                <Placement x="1" y="59" z="1" yaw="0"/>            </AgentStart>
                 <AgentHandlers>
                   <ObservationFromFullStats/>
                   <ObservationFromGrid>
