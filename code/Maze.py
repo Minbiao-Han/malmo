@@ -37,7 +37,7 @@ else:
 
 
 def getLayout(name):
-    matrix = tryToLoad(name)
+    matrix = tryToLoad("layouts/" + name)
     return matrix
 
 
@@ -49,7 +49,7 @@ def tryToLoad(fullname):
     return Matrix
 
 
-level_mat = getLayout("bigMaze.lay")
+level_mat = getLayout("bigCorners.lay")
 
 def GenBlock(x, y, z, blocktype):
     return '<DrawBlock x="' + str(x) + '" y="' + str(y) + '" z="' + str(z) + '" type="' + blocktype + '"/>'
