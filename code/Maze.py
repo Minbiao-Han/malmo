@@ -49,11 +49,15 @@ def tryToLoad(fullname):
     return Matrix
 
 
-level_mat = getLayout("bigCorners.lay")
+level_mat = getLayout("bigMaze.lay")
 
 def GenBlock(x, y, z, blocktype):
     return '<DrawBlock x="' + str(x) + '" y="' + str(y) + '" z="' + str(z) + '" type="' + blocktype + '"/>'
 
+def GenPlayerStart(x, z):
+    return '<Placement x="' + str(x + 0.4) + '" y="56" z="' + str(z + 0.4) + '" yaw="0"/>'
+
+pStart = {'x': 0, 'z': 0}
 
 def mazeCreator():
     genstring = ""
@@ -63,10 +67,16 @@ def mazeCreator():
                 genstring += GenBlock(i, 56, j, "diamond_block") + "\n"
                 genstring += GenBlock(i, 57, j, "diamond_block") + "\n"
                 genstring += GenBlock(i, 58, j, "diamond_block") + "\n"
-            else:
-                pass
+            elif level_mat[i][j] == "P":
+                pStart['x'] = i
+                pStart['z'] = j
+
+            elif level_mat[i][j] == ".":
+                genstring += GenBlock(i, 55, j, "glowstone") + "\n"
 
     return genstring
+
+
 
 # More interesting generator string: "3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"
 
@@ -90,7 +100,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
               <AgentSection mode="Survival">
                 <Name>MalmoTutorialBot</Name>
-                <AgentStart>                <Placement x="1" y="59" z="1" yaw="0"/>            </AgentStart>
+                <AgentStart> '''   + GenPlayerStart(pStart['x'], pStart['z']) +  ''' </AgentStart>
                 <AgentHandlers>
                   <ObservationFromFullStats/>
                   <ObservationFromGrid>
@@ -184,7 +194,7 @@ def isGoalReached(world_state):
         msg = world_state.observations[-1].text
         observations = json.loads(msg)
         grid = observations.get(u'floor3x3F', 0)
-        if grid[4]==u'obsidian':
+        if grid[4]==u'glowstone':
             return True
         else:
             return False
