@@ -51,13 +51,13 @@ def tryToLoad(fullname):
     return Matrix
 
 
-level_mat = getLayout("testMaze.lay")
+level_mat = getLayout("smallMaze.lay")
 
 def GenBlock(x, y, z, blocktype):
     return '<DrawBlock x="' + str(x) + '" y="' + str(y) + '" z="' + str(z) + '" type="' + blocktype + '"/>'
 
 def GenPlayerStart(x, z):
-    return '<Placement x="' + str(x + 0.5) + '" y="56" z="' + str(z + 0.5) + '" yaw="0"/>'
+    return '<Placement x="' + str(x + 0.4) + '" y="56" z="' + str(z + 0.4) + '" yaw="0"/>'
 
 pStart = {'x': 0, 'z': 0}
 pGoal = {'x': 0, 'z': 0}
@@ -161,39 +161,50 @@ def turnLeft():
     # u -= 1
     # facing_curr = loc[u]
 
-def moveRight(table, x, z):
+def moveRight():
     agent_host.sendCommand("strafe 1")
     time.sleep(0.5)
     agent_host.sendCommand("strafe 0")
     # u += 1
     # facing_curr = loc[u%4]
-    print('moved right:', x, z)
+    global x
+    global z
+    global table
     x = x + 1
     table[x][z] = 1
+    print('moved right:', x, z)
 
-def moveLeft(table, x, z):
+def moveLeft():
     agent_host.sendCommand("strafe -1")
     time.sleep(0.5)
     agent_host.sendCommand("strafe 0")
     # u -= 1
     # facing_curr = loc[u%4]
-    print('moved left', x, z)
+    global x
+    global z
+    global table
     x = x - 1
     table[x][z] = 1
+    print('moved left', x, z)
 
-def moveStraight(table, x, z):
+def moveStraight():
     agent_host.sendCommand("move 1")
     time.sleep(0.5)
     agent_host.sendCommand("move 0")
-    print('moved straight', x, z)
+    global x
+    global z
+    global table
     z = z + 1
     table[x][z] = 1
+    print('moved straight', x, z)
 
-def moveBack(table, x, z):
+def moveBack():
     agent_host.sendCommand("move -1")
     time.sleep(0.5)
     agent_host.sendCommand("move 0")
-    print('moved back', x, z)
+    global x
+    global z
+    global table
     z = z - 1
     table[x][z] = 1
 
@@ -224,7 +235,7 @@ def isGoalReached(world_state):
         else:
             return False
 
-def actOK(world_state, actions, step, table, x, z):
+def actOK(world_state, actions, step):
     #print('observations of world_state.number_of_observations_since_last_state', world_state.number_of_observations_since_last_state)
     if world_state.number_of_observations_since_last_state > 0:
         msg = world_state.observations[-1].text
@@ -251,7 +262,7 @@ def actOK(world_state, actions, step, table, x, z):
         nextz = z
         if actions[step] == 1: nextz = z + 1
         if actions[step] == 2: nextx = x + 1
-        if actions[step] == 3: nextz = z - 1
+        if actions[step] == 3: nextz = x - 1
         if actions[step] == 4: nextx = x - 1
         if table[nextx][nextz] == 1: return False
         # if abs(actions[step] - actions[step - 1]) == 2:
@@ -339,19 +350,19 @@ while True:
         print(data)
         print('x and z', x, z)
         if(actions[step] <= 4):
-            if (actOK(world_state, actions, step,table, x, z)):
-                if actions[step] == 1: moveStraight(table, x, z)
-                if actions[step] == 2: moveRight(table, x, z)
-                if actions[step] == 3: moveBack(table, x, z)
-                if actions[step] == 4: moveLeft(table, x, z)
+            if (actOK(world_state, actions, step)):
+                if actions[step] == 1: moveStraight()
+                if actions[step] == 2: moveRight()
+                if actions[step] == 3: moveBack()
+                if actions[step] == 4: moveLeft()
                 stepComplete = 1
         else:
             if(actions[step] > 4):
                 table[x][z] = 0
-                if actions[step - 1] == 1: moveBack(table, x, z)
-                if actions[step - 1] == 2: moveLeft(table, x, z)
-                if actions[step - 1] == 3: moveStraight(table, x, z)
-                if actions[step - 1] == 4: moveRight(table, x, z)
+                if actions[step - 1] == 1: moveBack()
+                if actions[step - 1] == 2: moveLeft()
+                if actions[step - 1] == 3: moveStraight()
+                if actions[step - 1] == 4: moveRight()
                 actions[step] = 0
                 step = step - 1
                 if step < 0: stepComplete = 1
