@@ -128,10 +128,11 @@ class A_Star:
             l.append((i.x, i.y))
         return l
 
-def find_path():
-    s_x, s_y = pStart['x'], pStart['z']
-    e_x, e_y = pEnd['x'], pEnd['z']
-    a_star = A_Star(s_x, s_y, e_x, e_y, len(level_mat[0]), len(level_mat))
+
+def a_star_search(maze, start, end):
+    s_x, s_y = start[0], start[1]
+    e_x, e_y = end[0], end[1]
+    a_star = A_Star(s_x, s_y, e_x, e_y, len(maze[0]), len(maze))
     a_star.find_path()
     searched = a_star.get_searched()
     path = a_star.path   
@@ -348,12 +349,14 @@ def getAdjacentSpaces(maze, space, visited):
 
 my_mission = MalmoPython.MissionSpec(missionXML, True)
 my_mission_record = MalmoPython.MissionRecordSpec()
+my_client_pool = MalmoPython.ClientPool()
+my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001)) #10000 in use - try 10001
 
 # Attempt to start a mission:
 max_retries = 3
 for retry in range(max_retries):
     try:
-        agent_host.startMission(my_mission, my_mission_record)
+        agent_host.startMission(my_mission, my_client_pool, my_mission_record, 0, "experimentID2")
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
@@ -380,7 +383,7 @@ print(pStart)
 #path = [(3, 11), (3, 12), (3, 13), (4, 13), (5, 13), (5, 12), (6, 12), (7, 12), (7, 11), (7, 10), (8, 10), (8, 9), (8, 8), (8, 7), (8, 6), (8,5), (8,4), (8,3), (8,2), (8,1)]
 pathD = DFS(level_mat, (pStart['x'], pStart['z']), (pEnd['x'], pEnd['z']))
 pathB = BFS(level_mat, (pStart['x'], pStart['z']), (pEnd['x'], pEnd['z']))
-pathA = find_path()
+pathA = a_star_search(level_mat, (pStart['x'], pStart['z']), (pEnd['x'], pEnd['z']))
 print('Path returned by A*: ', pathA)
 print('Path returned by BFS: ',pathB)
 print('Path returned by DFS: ',pathD)
