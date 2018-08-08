@@ -402,12 +402,14 @@ def CornerSearch(maze, start, perm):
 
 my_mission = MalmoPython.MissionSpec(missionXML, True)
 my_mission_record = MalmoPython.MissionRecordSpec()
+my_client_pool = MalmoPython.ClientPool()
+my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001)) #10000 in use - try 10001
 
 # Attempt to start a mission:
 max_retries = 3
 for retry in range(max_retries):
     try:
-        agent_host.startMission(my_mission, my_mission_record)
+        agent_host.startMission(my_mission, my_client_pool, my_mission_record, 0, "experimentID2")
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
