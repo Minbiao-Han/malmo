@@ -163,7 +163,7 @@ class TabQAgent(object):
         return total_reward
 
     def drawQ(self, curr_x=None, curr_y=None):
-        scale = 40
+        scale = 50
         world_x = 6
         world_y = 14
         if self.canvas is None or self.root is None:
@@ -185,7 +185,7 @@ class TabQAgent(object):
             for y in range(world_y):
                 s = "%d:%d" % (x, y)
                 self.canvas.create_rectangle(x * scale, y * scale, (x + 1) * scale, (y + 1) * scale, outline="#fff",
-                                             fill="#000")
+                                             fill="#002")
                 for action in range(4):
                     if not s in self.q_table:
                         continue
