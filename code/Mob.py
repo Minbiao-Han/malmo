@@ -13,6 +13,10 @@ import sys
 import math
 import itertools
 from itertools import permutations
+from collections import namedtuple
+from past.utils import old_div
+
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, name')
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -244,6 +248,9 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                         <max x="1" y="-1" z="1"/>
                       </Grid>
                   </ObservationFromGrid>
+                  <ObservationFromNearbyEntities>
+                    <Range name="entities" xrange="40" yrange="2" zrange="40"/>
+                  </ObservationFromNearbyEntities>
                 </AgentHandlers>
               </AgentSection>
             </Mission>'''
@@ -517,10 +524,27 @@ print(pStart)
 #         print("The path you entered is not continuous. Please fix your path input and try again.")
 #         break
 reward = 0
+
 while world_state.is_mission_running:
 
+
     world_state = agent_host.getWorldState()
+    if world_state.number_of_observations_since_last_state > 0:
+        msg = world_state.observations[-1].text
+        ob = json.loads(msg)
+
+        entities = [EntityInfo(k["x"], k["y"], k["z"], k["name"]) for k in ob["entities"]]
+        poi = [ent for ent in entities]
+        zombies = [ent for ent in poi if ent.name == "Zombie"]
+        player = [ent for ent in poi if ent.name == "MalmoTutorialBot"]
+        print("Player x: " + str(player[0].x) + ", z: " + str(player[0].z) + "")
+        print("Zombie x: " + str(zombies[0].x) + ", z: " + str(zombies[0].z) + "")
+
+
     if world_state.number_of_rewards_since_last_state > 0:
+
+
+
         reward += world_state.rewards[-1].getValue()
         print(reward)
 
