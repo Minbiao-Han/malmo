@@ -210,6 +210,12 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <Summary>Hello world!</Summary>
               </About>
               <ServerSection>
+                <ServerInitialConditions>
+                  <Time>
+                    <StartTime>21000</StartTime>
+                    <AllowPassageOfTime>false</AllowPassageOfTime>
+                  </Time>
+                </ServerInitialConditions>
                 <ServerHandlers>
                   <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
                   <DrawingDecorator>
@@ -432,12 +438,15 @@ def CornerSearch(maze, start, perm, searched):
 
 my_mission = MalmoPython.MissionSpec(missionXML, True)
 my_mission_record = MalmoPython.MissionRecordSpec()
+my_client_pool = MalmoPython.ClientPool()
+my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001)) #10000 in use - try 10001
 
 # Attempt to start a mission:
 max_retries = 3
 for retry in range(max_retries):
     try:
-        agent_host.startMission(my_mission, my_mission_record)
+        # agent_host.startMission(my_mission, my_mission_record)
+        agent_host.startMission(my_mission, my_client_pool, my_mission_record, 0, "experimentID2")
         break
     except RuntimeError as e:
         if retry == max_retries - 1:

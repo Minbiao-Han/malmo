@@ -479,7 +479,7 @@ reward = 0
 while world_state.is_mission_running:
 
     world_state = agent_host.getWorldState()
-    if world_state.number_of_rewards_since_last_state > 0:
+    if world_state.number_of_rewards_since_last_state != 0:
         reward += world_state.rewards[-1].getValue()
         print(reward)
 
