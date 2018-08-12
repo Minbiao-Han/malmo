@@ -164,7 +164,7 @@ def tryToLoad(fullname):
     return Matrix
 
 
-level_mat = getLayout("smallMaze.lay")
+level_mat = getLayout("multiAgent.lay")
 
 
 def GenBlock(x, y, z, blocktype):
@@ -537,8 +537,11 @@ while world_state.is_mission_running:
         poi = [ent for ent in entities]
         zombies = [ent for ent in poi if ent.name == "Zombie"]
         player = [ent for ent in poi if ent.name == "MalmoTutorialBot"]
-        print("Player x: " + str(player[0].x) + ", z: " + str(player[0].z) + "")
-        print("Zombie x: " + str(zombies[0].x) + ", z: " + str(zombies[0].z) + "")
+        print('length:', len(player), len(zombies))
+        print("Player 2: " + str(player[0].x) + ", z: " + str(player[0].z) + "")
+        print("Zombie 1: " + str(zombies[0].x) + ", z: " + str(zombies[0].z) + "")
+        print("Zombie 2: " + str(zombies[1].x) + ", z: " + str(zombies[1].z) + "")
+
 
 
     if world_state.number_of_rewards_since_last_state > 0:
