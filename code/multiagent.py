@@ -17,6 +17,7 @@ import re
 import uuid
 from collections import namedtuple
 from operator import add
+import random
 from random import *
 
 EntityInfo = namedtuple('EntityInfo', 'x, y, z, name')
@@ -120,34 +121,35 @@ def moveRight(ah):
     ah.sendCommand("strafe 1")
     time.sleep(0.2)
 
-    print("moving right")
-
 
 def moveLeft(ah):
     ah.sendCommand("strafe -1")
     time.sleep(0.2)
-    print("moving left")
 
 
 def moveStraight(ah):
     ah.sendCommand("move 1")
     time.sleep(0.2)
-    print("moving straight")
 
 
 def moveBack(ah):
     ah.sendCommand("move -1")
     time.sleep(0.2)
-    print("moving backwards")
 
 
-def enemyAgentMove(agent):
-    x = randint(0,3)
-    if x == 0:
+def enemyAgentMove(agent, ws):
+    illegal = legalMoves(ws)
+    legal = ['right', 'left', 'forward', 'back']
+    for i in illegal:
+        if i in legal:
+            legal.remove(i)
+
+    x = legal[randrange(len(legal))]
+    if x == "right":
         moveRight(agent)
-    elif x == 1:
+    elif x == "left":
         moveLeft(agent)
-    elif x == 2:
+    elif x == "forward":
         moveStraight(agent)
     else:
         moveBack(agent)
@@ -194,21 +196,17 @@ def reflexAgentMove(agent, pos, wstate):
          scores.append(score)
          dirscores.append(('left', evalfuncReflex((pos[0]+1, pos[1]))))
      if "forward" not in illegalgrid:
-         print(pos[0], pos[1]+1)
          score = evalfuncReflex((pos[0], pos[1] + 1))
          scores.append(score)
          dirscores.append(('forward', evalfuncReflex((pos[0], pos[1]+1))))
      if "right" not in illegalgrid:
-         print(pos[0] - 1, pos[1])
          score = evalfuncReflex((pos[0]-1, pos[1]))
          scores.append(score)
          dirscores.append(('right', evalfuncReflex((pos[0]-1, pos[1]))))
      if "back" not in illegalgrid:
-         print(pos[0], pos[1]-1)
          score = evalfuncReflex((pos[0], pos[1]-1))
          scores.append(score)
          dirscores.append(('back', score))
-     print(dirscores)
      togo = max(scores)
      togolst = []
      for i in dirscores:
@@ -270,7 +268,7 @@ food = []
 
 def mazeCreator():
     genstring = ""
-    genstring += GenBlock(0, 65, 0, "glass") + "\n"
+    genstring += GenBlock(5, 75, 10, "glass") + "\n"
     for i in range(len(level_mat)):
         for j in range(len(level_mat[0])):
 
@@ -364,7 +362,7 @@ def getXML(reset):
     xml += '''<AgentSection mode="Creative">
         <Name>TheWatcher</Name>
         <AgentStart>
-          <Placement x="0.5" y="66" z="0.5" pitch="90"/>
+          <Placement x="5.5" y="76" z="10.5" pitch="90"/>
         </AgentStart>
         <AgentHandlers>
           <ContinuousMovementCommands turnSpeedDegs="360"/>
@@ -417,7 +415,7 @@ while not timed_out and food:
                 current_pos[i] = (ob[u'XPos'], ob[u'ZPos'])
                 #print(current_pos[i])
             if ob['Name'] == 'Enemy':
-                enemyAgentMove(ah)
+                enemyAgentMove(ah, world_state)
                 eCurr['x'] = current_pos[i][0]
                 eCurr['z'] = current_pos[i][1]
                 if (current_pos[i] == (pCurr['x'], pCurr['z'])):
