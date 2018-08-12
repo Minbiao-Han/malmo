@@ -1,3 +1,6 @@
+# Created by Minbiao Han and Roman Sharykin
+# AI fall 2018
+
 from collections import deque
 
 

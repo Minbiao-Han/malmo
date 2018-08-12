@@ -69,9 +69,6 @@ def mazeCreator():
     return genstring
 
 
-
-# More interesting generator string: "3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"
-
 missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
               <About>
@@ -108,7 +105,6 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 </AgentHandlers>
               </AgentSection>
             </Mission>'''
-
 my_mission = MalmoPython.MissionSpec(missionXML, True)
 
 agent_host = MalmoPython.AgentHost()
@@ -218,7 +214,6 @@ print("Mission running ", end=' ')
 
 print(pStart)
 
-#path = [(3, 11), (3, 12), (3, 13), (4, 13), (5, 13), (5, 12), (6, 12), (7, 12), (7, 11), (7, 10), (8, 10), (8, 9), (8, 8), (8, 7), (8, 6), (8,5), (8,4), (8,3), (8,2), (8,1)]
 pathD = DFS_search(level_mat, (pStart['x'], pStart['z']), (pEnd['x'], pEnd['z']))
 pathB = BFS_search(level_mat, (pStart['x'], pStart['z']), (pEnd['x'], pEnd['z']))
 pathA = A_Star_search(level_mat, (pStart['x'], pStart['z']), (pEnd['x'], pEnd['z']))
