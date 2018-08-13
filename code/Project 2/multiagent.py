@@ -243,65 +243,12 @@ def generateSuccessor(pos, move):
     elif move == "back":
         return (pos[0], pos[1]-1)
 
-# def minimaxSearch(pos, wstate, agentIndex,depth):
-#     if agentIndex == 1:
-#         if depth == globalDepth:
-#             return evalfuncReflex((pos[0], pos[1]))
-#         else:
-#             return minimaxSearch(pos, wstate, 0, depth + 1)
-#     else:
-#         moves = ['right', 'left', 'back', 'forward']
-#         ilegalmoves = legalMoves(wstate)
-#         for i in ilegalmoves:
-#             if i in moves:
-#                 moves.remove(i)
-#         if len(moves) == 0:
-#             return evalfuncReflex((pos[0], pos[1]))
-#         next = (minimaxSearch(generateSuccessor(pos, m), wstate, agentIndex + 1, depth) for m in moves)
-#         if agentIndex == 0:
-#             return max(next)
-#         else:
-#             return min(next)
-#
-#
-# def minimaxAgentMove(agent, pos, wstate):
-#     moves = ['right', 'left', 'back', 'forward']
-#     #print('wrold_state', wstate)
-#     ilegalmoves = legalMoves(wstate)
-#     print('ilegal moves: ', ilegalmoves)
-#     for i in ilegalmoves:
-#         if i in moves:
-#             moves.remove(i)
-#     print('legal moves: ', moves)
-#     result = max(minimaxSearch(generateSuccessor(pos, m), wstate, 0, 1) for m in moves)
-#
-#     togolst = []
-#     for m in moves:
-#         if minimaxSearch(generateSuccessor(pos, m), wstate, 0, 1) == result:
-#             togolst.append(m)
-#     lengo = len(togolst) - 1
-#     rand = randint(0, lengo)
-#     togo = togolst[rand]
-#
-#     #result = max(moves, key=lambda x: minimaxSearch(generateSuccessor(pos, x), wstate, 0, 1))
-#     print('result:', result)
-#     if togo == "right":
-#         moveRight(agent)
-#     elif togo == "left":
-#         moveLeft(agent)
-#     elif togo == "forward":
-#         moveStraight(agent)
-#     elif togo == "back":
-#         moveBack(agent)
-
-
-def expectimaxSearch(pos, wstate, agentIndex,depth):
+def minimaxSearch(pos, wstate, agentIndex,depth):
     if agentIndex == 1:
-        print('agent index equals to 1 finally!!!!')
         if depth == globalDepth:
-            return evalfuncReflex(pos)
+            return evalfuncReflex((pos[0], pos[1]))
         else:
-            return expectimaxSearch(pos, wstate, 0, depth + 1)
+            return minimaxSearch(pos, wstate, 0, depth + 1)
     else:
         moves = ['right', 'left', 'back', 'forward']
         ilegalmoves = legalMoves(wstate)
@@ -309,17 +256,18 @@ def expectimaxSearch(pos, wstate, agentIndex,depth):
             if i in moves:
                 moves.remove(i)
         if len(moves) == 0:
-            return evalfuncReflex(pos)
+            return evalfuncReflex((pos[0], pos[1]))
         next = []
         for m in moves:
-            next.append(expectimaxSearch(generateSuccessor(pos, m), wstate, agentIndex + 1, depth))
+            next.append(minimaxSearch(generateSuccessor(pos, m), wstate, agentIndex + 1, depth))
         if agentIndex == 0:
             return max(next)
         else:
-            return np.mean(next)
+            return min(next)
 
-def expectimaxAgentMove(agent, pos, wstate):
+def minimaxAgentMove(agent, pos, wstate):
     moves = ['right', 'left', 'back', 'forward']
+    #print('wrold_state', wstate)
     ilegalmoves = legalMoves(wstate)
     print('ilegal moves: ', ilegalmoves)
     for i in ilegalmoves:
@@ -328,18 +276,18 @@ def expectimaxAgentMove(agent, pos, wstate):
     print('legal moves: ', moves)
     res = []
     for m in moves:
-        res.append(expectimaxSearch(generateSuccessor(pos, m), wstate,  0, 1))
+        res.append(minimaxSearch(generateSuccessor(pos, m), wstate, 0, 1))
     result = max(res)
 
     togolst = []
     for m in moves:
-        if expectimaxSearch(generateSuccessor(pos, m), wstate, 0, 1) == result:
+        if minimaxSearch(generateSuccessor(pos, m), wstate, 0, 1) == result:
             togolst.append(m)
-    print('togolst', togolst)
     lengo = len(togolst) - 1
     rand = randint(0, lengo)
     togo = togolst[rand]
 
+    #result = max(moves, key=lambda x: minimaxSearch(generateSuccessor(pos, x), wstate, 0, 1))
     print('result:', result)
     if togo == "right":
         moveRight(agent)
@@ -349,6 +297,62 @@ def expectimaxAgentMove(agent, pos, wstate):
         moveStraight(agent)
     elif togo == "back":
         moveBack(agent)
+
+
+# def expectimaxSearch(pos, wstate, agentIndex,depth):
+#     if agentIndex == 1:
+#         print('agent index equals to 1 finally!!!!')
+#         if depth == globalDepth:
+#             return evalfuncReflex(pos)
+#         else:
+#             return expectimaxSearch(pos, wstate, 0, depth + 1)
+#     else:
+#         moves = ['right', 'left', 'back', 'forward']
+#         ilegalmoves = legalMoves(wstate)
+#         for i in ilegalmoves:
+#             if i in moves:
+#                 moves.remove(i)
+#         if len(moves) == 0:
+#             return evalfuncReflex(pos)
+#         next = []
+#         for m in moves:
+#             next.append(expectimaxSearch(generateSuccessor(pos, m), wstate, agentIndex + 1, depth))
+#         if agentIndex == 0:
+#             return max(next)
+#         else:
+#             return np.mean(next)
+#
+# def expectimaxAgentMove(agent, pos, wstate):
+#     moves = ['right', 'left', 'back', 'forward']
+#     ilegalmoves = legalMoves(wstate)
+#     print('ilegal moves: ', ilegalmoves)
+#     for i in ilegalmoves:
+#         if i in moves:
+#             moves.remove(i)
+#     print('legal moves: ', moves)
+#     res = []
+#     for m in moves:
+#         res.append(expectimaxSearch(generateSuccessor(pos, m), wstate,  0, 1))
+#     result = max(res)
+#
+#     togolst = []
+#     for m in moves:
+#         if expectimaxSearch(generateSuccessor(pos, m), wstate, 0, 1) == result:
+#             togolst.append(m)
+#     print('togolst', togolst)
+#     lengo = len(togolst) - 1
+#     rand = randint(0, lengo)
+#     togo = togolst[rand]
+#
+#     print('result:', result)
+#     if togo == "right":
+#         moveRight(agent)
+#     elif togo == "left":
+#         moveLeft(agent)
+#     elif togo == "forward":
+#         moveStraight(agent)
+#     elif togo == "back":
+#         moveBack(agent)
 
 
 def getLayout(name):
@@ -557,9 +561,9 @@ while not timed_out and food:
                     timed_out = True
                     break
                 print('agent moving')
-                expectimaxAgentMove(ah, current_pos[i], world_state)
+                #expectimaxAgentMove(ah, current_pos[i], world_state)
                 #minimaxAgentMove(ah, current_pos[i], world_state)
-                #reflexAgentMove(ah, current_pos[i], world_state)
+                reflexAgentMove(ah, current_pos[i], world_state)
                 pCurr['x'] = current_pos[i][0]
                 pCurr['z'] = current_pos[i][1]
                 grid = ob.get(u'floor3x3W', 0)
