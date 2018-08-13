@@ -87,7 +87,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
               </ServerSection>
 
               <AgentSection mode="Survival">
-                <Name>MalmoTutorialBot</Name>
+                <Name>Bob</Name>
                 <AgentStart> '''   + GenPlayerStart(pStart['x'], pStart['z']) +  ''' </AgentStart>
                 <AgentHandlers>
                   <DiscreteMovementCommands/>
