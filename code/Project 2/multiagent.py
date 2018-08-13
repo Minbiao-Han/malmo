@@ -562,8 +562,8 @@ while not timed_out and food:
                     break
                 print('agent moving')
                 #expectimaxAgentMove(ah, current_pos[i], world_state)
-                #minimaxAgentMove(ah, current_pos[i], world_state)
-                reflexAgentMove(ah, current_pos[i], world_state)
+                minimaxAgentMove(ah, current_pos[i], world_state)
+                #reflexAgentMove(ah, current_pos[i], world_state)
                 pCurr['x'] = current_pos[i][0]
                 pCurr['z'] = current_pos[i][1]
                 grid = ob.get(u'floor3x3W', 0)
