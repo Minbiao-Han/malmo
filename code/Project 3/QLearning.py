@@ -88,54 +88,8 @@ class TabQAgent(object):
         self.prev_s = None
         self.prev_a = None
 
-        is_first_action = True
 
-        # main loop:
-        world_state = agent_host.getWorldState()
-        while world_state.is_mission_running:
-
-            current_r = 0
-
-            if is_first_action:
-                # wait until have received a valid observation
-                while True:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for reward in world_state.rewards:
-                        current_r += reward.getValue()
-                    if world_state.is_mission_running and len(world_state.observations) > 0 and not \
-                    world_state.observations[-1].text == "{}":
-                        total_reward += self.act(world_state, agent_host, current_r)
-                        break
-                    if not world_state.is_mission_running:
-                        break
-                is_first_action = False
-            else:
-                # wait for non-zero reward
-                while world_state.is_mission_running and current_r == 0:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for reward in world_state.rewards:
-                        current_r += reward.getValue()
-                # allow time to stabilise after action
-                while True:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for reward in world_state.rewards:
-                        current_r += reward.getValue()
-                    if world_state.is_mission_running and len(world_state.observations) > 0 and not \
-                    world_state.observations[-1].text == "{}":
-                        total_reward += self.act(world_state, agent_host, current_r)
-                        break
-                    if not world_state.is_mission_running:
-                        break
-
-        # process final reward
-        total_reward += current_r
-
-        # update Q values
-        if self.prev_s is not None and self.prev_a is not None:
-            self.updateQTableFromTerminatingState(current_r)
+        ### YOUR CODE HERE ###
 
         self.drawQ()
 
