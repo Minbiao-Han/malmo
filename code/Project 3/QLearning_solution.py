@@ -23,11 +23,9 @@ class TabQAgent(object):
     """Tabular Q-learning agent for discrete state/action spaces."""
 
     def __init__(self):
-
-        self.epsilon = 0.05  # exploration rate
-        self.alpha = 0.2     # learning rate
-        self.gamma = 0.8  # reward discount factor
-
+        self.epsilon = 0.05  # chance of taking a random action instead of the best
+        self.alpha = 0.2
+        self.gamma = 0.8
         self.logger = logging.getLogger(__name__)
         if False:  # True if you want to see more information
             self.logger.setLevel(logging.DEBUG)
@@ -43,12 +41,13 @@ class TabQAgent(object):
 
     def updateQTable(self, reward, current_state, prev_state, prev_a):
         """Change q_table to reflect what we have learnt."""
+        R = reward + self.gamma * max(self.q_table[current_state])
+        self.q_table[prev_state][prev_a] = self.q_table[prev_state][prev_a] + self.alpha * (
+                    R - self.q_table[prev_state][prev_a])
 
-                    ### YOUR CODE HERE ###
     def updateQTableFromTerminatingState(self, reward):
-        """Change q_table to reflect what we have learnt upon reaching the terminal state."""
-
-                    ### YOUR CODE HERE ###
+        new_q = reward
+        self.q_table[self.prev_s][self.prev_a] = new_q
 
     def act(self, world_state, agent_host, current_r):
         obs_text = world_state.observations[-1].text
@@ -68,18 +67,33 @@ class TabQAgent(object):
 
         self.drawQ(curr_x=int(obs[u'XPos']), curr_y=int(obs[u'ZPos']))
 
-        # select the next action (find a s.t. self.actions[a] == next action)
+        # select the next action
+        rnd = random.random()
+        if rnd < self.epsilon:
+            a = random.randint(0, len(self.actions) - 1)
+            self.logger.info("Random action: %s" % self.actions[a])
+        else:
+            m = max(self.q_table[current_s])
+            self.logger.debug("Current values: %s" % ",".join(str(x) for x in self.q_table[current_s]))
+            l = list()
+            for x in range(0, len(self.actions)):
+                if self.q_table[current_s][x] == m:
+                    l.append(x)
+            y = random.randint(0, len(l) - 1)
+            a = l[y]
+            self.logger.info("Taking q action: %s" % self.actions[a])
 
-                        ### YOUR CODE HERE ###
+        # try to send the selected action, only update prev_s if this succeeds
+        try:
+            agent_host.sendCommand(self.actions[a])
+            self.prev_s = current_s
+            self.prev_a = a
 
-
-        # try to send the selected action to agent, only update prev_s if this succeeds
-
-                        ### YOUR CODE HERE ###
+        except RuntimeError as e:
+            self.logger.error("Failed to send command: %s" % e)
 
         return current_r
 
-    # do not change this function
     def run(self, agent_host):
         """run the agent on the world"""
 
@@ -101,6 +115,8 @@ class TabQAgent(object):
                 while True:
                     time.sleep(0.1)
                     world_state = agent_host.getWorldState()
+                    for error in world_state.errors:
+                        self.logger.error("Error: %s" % error.text)
                     for reward in world_state.rewards:
                         current_r += reward.getValue()
                     if world_state.is_mission_running and len(world_state.observations) > 0 and not \
@@ -115,12 +131,16 @@ class TabQAgent(object):
                 while world_state.is_mission_running and current_r == 0:
                     time.sleep(0.1)
                     world_state = agent_host.getWorldState()
+                    for error in world_state.errors:
+                        self.logger.error("Error: %s" % error.text)
                     for reward in world_state.rewards:
                         current_r += reward.getValue()
                 # allow time to stabilise after action
                 while True:
                     time.sleep(0.1)
                     world_state = agent_host.getWorldState()
+                    for error in world_state.errors:
+                        self.logger.error("Error: %s" % error.text)
                     for reward in world_state.rewards:
                         current_r += reward.getValue()
                     if world_state.is_mission_running and len(world_state.observations) > 0 and not \
@@ -131,6 +151,7 @@ class TabQAgent(object):
                         break
 
         # process final reward
+        self.logger.debug("Final reward: %d" % current_r)
         total_reward += current_r
 
         # update Q values
@@ -141,7 +162,6 @@ class TabQAgent(object):
 
         return total_reward
 
-    # do not change this function
     def drawQ(self, curr_x=None, curr_y=None):
         scale = 50
         world_x = 6
@@ -202,23 +222,76 @@ except RuntimeError as e:
     print('ERROR:', e)
     print(agent_host.getUsage())
     exit(1)
+if agent_host.receivedArgument("help"):
+    print(agent_host.getUsage())
+    exit(0)
 
 # -- set up the mission -- #
-mission_file = './qlearning.xml'
-with open(mission_file, 'r') as f:
-    print("Loading mission from %s" % mission_file)
-    mission_xml = f.read()
-    my_mission = MalmoPython.MissionSpec(mission_xml, True)
+mission_xml = """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <About>
+    <Summary/>
+  </About>
+  <ServerSection>
+    <ServerInitialConditions>
+        <Time><StartTime>1</StartTime></Time>
+    </ServerInitialConditions>
+    <ServerHandlers>
+      <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
+      <DrawingDecorator>
+        <!-- coordinates for cuboid are inclusive -->
+        <DrawCuboid x1="-2" y1="46" z1="-2" x2="7" y2="300" z2="13" type="air" />            <!-- limits of our arena -->
+        <DrawCuboid x1="-2" y1="43" z1="-2" x2="7" y2="45" z2="13" type="water" />           <!-- lava floor -->
+        <DrawCuboid x1="1"  y1="44" z1="1"  x2="3" y2="45" z2="17" type="grass" />      <!-- floor of the arena -->
+        <DrawBlock x="4"  y="45" z="1" type="gold_ore" />    <!-- the starting marker -->
+        <DrawBlock x="4"  y="45" z="7" type="lit_redstone_ore" />     <!-- the destination marker -->
+        <DrawBlock x="-2"  y="47" z="-2" type="glowstone" />
+        <DrawBlock x="7"  y="47" z="-2" type="glowstone" />
+        <DrawBlock x="-2"  y="47" z="13" type="glowstone" />
+        <DrawBlock x="7"  y="47" z="13" type="glowstone" />
+        <DrawBlock x="-2"  y="49" z="-2" type="glowstone" />
+        <DrawBlock x="7"  y="49" z="-2" type="glowstone" />
+        <DrawBlock x="-2"  y="49" z="13" type="glowstone" />
+        <DrawBlock x="7"  y="49" z="13" type="glowstone" />
+      </DrawingDecorator>
+      <ServerQuitFromTimeUp timeLimitMs="20000"/>
+      <ServerQuitWhenAnyAgentFinishes/>
+    </ServerHandlers>
+  </ServerSection>
+  <AgentSection mode="Survival">
+    <Name>Cristina</Name>
+    <AgentStart>
+      <Placement x="4.5" y="46.0" z="1.5" pitch="30" yaw="0"/>
+    </AgentStart>
+    <AgentHandlers>
+      <DiscreteMovementCommands/>
+      <ObservationFromFullStats/>
+      <RewardForTouchingBlockType>
+        <Block reward="-100.0" type="water" behaviour="onceOnly"/>
+        <Block reward="100.0" type="lit_redstone_ore" behaviour="onceOnly"/>
+      </RewardForTouchingBlockType>
+      <RewardForSendingCommand reward="-1" />
+      <AgentQuitFromTouchingBlockType>
+          <Block type="water" />
+          <Block type="lit_redstone_ore" />
+      </AgentQuitFromTouchingBlockType>
+    </AgentHandlers>
+  </AgentSection>
+</Mission>"""
 
-# add some random holes in the ground to spice things up
-for x in range(1, 3):
+my_mission = MalmoPython.MissionSpec(mission_xml, True)
+# add 20% holes for interest
+for x in range(1, 4):
     for z in range(1, 13):
         if random.random() < 0.1:
             my_mission.drawBlock(x, 45, z, "water")
 
 max_retries = 3
 
-num_repeats = 150
+if agent_host.receivedArgument("test"):
+    num_repeats = 1
+else:
+    num_repeats = 150
 
 cumulative_rewards = []
 for i in range(num_repeats):
