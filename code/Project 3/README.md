@@ -6,10 +6,10 @@ In this project you will implement a Q-learning agent, which does very little on
 
 For this assignment you will need to complete the following methods:
 
-- updateQTable() \n
-- updateQTableFromTerminatingState() \n
-- act() \n
-- run() \n 
+- updateQTable()
+- updateQTableFromTerminatingState()
+- act()
+- run()
 
 Complete your Q-learning agent by implementing epsilon-greedy action selection in act(), meaning the agent chooses random actions an epsilon fraction of the time, and follows its current best Q-values otherwise. Note that choosing a random action may result in choosing the best action - that is, you should not choose a random sub-optimal action, but rather any random legal action.
 
