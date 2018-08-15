@@ -142,15 +142,22 @@ def moveBack(ah):
     print("moving backwards")
 
 
-def enemyAgentMove(agent):
-    x = randint(0,3)
-    if x == 0:
+def enemyAgentMove(agent, ws):
+    time.sleep(0.1)
+    illegalgrid = legalMoves(ws)
+    legalLST = ["right", "left", "forward", "back"]
+    for x in illegalgrid:
+        if x in legalLST:
+            legalLST.remove(x)
+    y = randint(0,len(legalLST)-1)
+    togo = legalLST[y]
+    if togo == "right":
         moveRight(agent)
-    elif x == 1:
+    elif togo == "left":
         moveLeft(agent)
-    elif x == 2:
+    elif togo == "forward":
         moveStraight(agent)
-    else:
+    elif togo == "back":
         moveBack(agent)
 
 
@@ -180,10 +187,27 @@ def evalfuncReflex(pos):
     if pos == (eCurr['x'], eCurr['z']):
         return(-100000)
     else:
-        enemydist = manhattan_distance(pos, (eCurr['x'], eCurr['z']))
-        escore = -10/enemydist
-        closestfood = min([manhattan_distance(pos, i) for i in food])
-        return(-2 * closestfood) + escore - (100 * len(food))
+        if (pos[0] - 0.5, pos[1] - 0.5) in food:
+            foodtmp = food.copy()
+            foodtmp.remove((pos[0] - 0.5, pos[1] - 0.5))
+            enemydist = manhattan_distance(pos, (eCurr['x'], eCurr['z']))
+            escore = -10 / enemydist
+            if foodtmp:
+                closestfood = min([manhattan_distance(pos, i) for i in foodtmp])
+
+            else:
+                closestfood = 0
+            return (-2 * closestfood) + escore - (100 * len(foodtmp))
+        else:
+            enemydist = manhattan_distance(pos, (eCurr['x'], eCurr['z']))
+            escore = -10/enemydist
+
+            if food:
+                closestfood = min([manhattan_distance(pos, i) for i in food])
+
+            else:
+                closestfood = 0
+            return (-2 * closestfood) +escore - (100 * len(food))
 
 
 def reflexAgentMove(agent, pos, wstate):
@@ -196,17 +220,17 @@ def reflexAgentMove(agent, pos, wstate):
          scores.append(score)
          dirscores.append(('left', evalfuncReflex((pos[0]+1, pos[1]))))
      if "forward" not in illegalgrid:
-         print(pos[0], pos[1]+1)
+         #print(pos[0], pos[1]+1)
          score = evalfuncReflex((pos[0], pos[1] + 1))
          scores.append(score)
          dirscores.append(('forward', evalfuncReflex((pos[0], pos[1]+1))))
      if "right" not in illegalgrid:
-         print(pos[0] - 1, pos[1])
+         #print(pos[0] - 1, pos[1])
          score = evalfuncReflex((pos[0]-1, pos[1]))
          scores.append(score)
          dirscores.append(('right', evalfuncReflex((pos[0]-1, pos[1]))))
      if "back" not in illegalgrid:
-         print(pos[0], pos[1]-1)
+         #print(pos[0], pos[1]-1)
          score = evalfuncReflex((pos[0], pos[1]-1))
          scores.append(score)
          dirscores.append(('back', score))
@@ -233,130 +257,9 @@ def reflexAgentMove(agent, pos, wstate):
 
 globalDepth = 2
 
-def generateSuccessor(pos, move):
-    if move == "right":
-        return (pos[0] - 1, pos[1])
-    elif move == "left":
-        return (pos[0]+1, pos[1])
-    elif move == "forward":
-        return (pos[0], pos[1]+1)
-    elif move == "back":
-        return (pos[0], pos[1]-1)
-
-def minimaxSearch(pos, wstate, agentIndex,depth):
-    if agentIndex == 1:
-        if depth == globalDepth:
-            return evalfuncReflex((pos[0], pos[1]))
-        else:
-            return minimaxSearch(pos, wstate, 0, depth + 1)
-    else:
-        moves = ['right', 'left', 'back', 'forward']
-        ilegalmoves = legalMoves(wstate)
-        for i in ilegalmoves:
-            if i in moves:
-                moves.remove(i)
-        if len(moves) == 0:
-            return evalfuncReflex((pos[0], pos[1]))
-        next = []
-        for m in moves:
-            next.append(minimaxSearch(generateSuccessor(pos, m), wstate, agentIndex + 1, depth))
-        if agentIndex == 0:
-            return max(next)
-        else:
-            return min(next)
-
-def minimaxAgentMove(agent, pos, wstate):
-    moves = ['right', 'left', 'back', 'forward']
-    #print('wrold_state', wstate)
-    ilegalmoves = legalMoves(wstate)
-    print('ilegal moves: ', ilegalmoves)
-    for i in ilegalmoves:
-        if i in moves:
-            moves.remove(i)
-    print('legal moves: ', moves)
-    res = []
-    for m in moves:
-        res.append(minimaxSearch(generateSuccessor(pos, m), wstate, 0, 1))
-    result = max(res)
-
-    togolst = []
-    for m in moves:
-        if minimaxSearch(generateSuccessor(pos, m), wstate, 0, 1) == result:
-            togolst.append(m)
-    lengo = len(togolst) - 1
-    rand = randint(0, lengo)
-    togo = togolst[rand]
-
-    #result = max(moves, key=lambda x: minimaxSearch(generateSuccessor(pos, x), wstate, 0, 1))
-    print('result:', result)
-    if togo == "right":
-        moveRight(agent)
-    elif togo == "left":
-        moveLeft(agent)
-    elif togo == "forward":
-        moveStraight(agent)
-    elif togo == "back":
-        moveBack(agent)
-
-
-# def expectimaxSearch(pos, wstate, agentIndex,depth):
-#     if agentIndex == 1:
-#         print('agent index equals to 1 finally!!!!')
-#         if depth == globalDepth:
-#             return evalfuncReflex(pos)
-#         else:
-#             return expectimaxSearch(pos, wstate, 0, depth + 1)
-#     else:
-#         moves = ['right', 'left', 'back', 'forward']
-#         ilegalmoves = legalMoves(wstate)
-#         for i in ilegalmoves:
-#             if i in moves:
-#                 moves.remove(i)
-#         if len(moves) == 0:
-#             return evalfuncReflex(pos)
-#         next = []
-#         for m in moves:
-#             next.append(expectimaxSearch(generateSuccessor(pos, m), wstate, agentIndex + 1, depth))
-#         if agentIndex == 0:
-#             return max(next)
-#         else:
-#             return np.mean(next)
-#
-# def expectimaxAgentMove(agent, pos, wstate):
-#     moves = ['right', 'left', 'back', 'forward']
-#     ilegalmoves = legalMoves(wstate)
-#     print('ilegal moves: ', ilegalmoves)
-#     for i in ilegalmoves:
-#         if i in moves:
-#             moves.remove(i)
-#     print('legal moves: ', moves)
-#     res = []
-#     for m in moves:
-#         res.append(expectimaxSearch(generateSuccessor(pos, m), wstate,  0, 1))
-#     result = max(res)
-#
-#     togolst = []
-#     for m in moves:
-#         if expectimaxSearch(generateSuccessor(pos, m), wstate, 0, 1) == result:
-#             togolst.append(m)
-#     print('togolst', togolst)
-#     lengo = len(togolst) - 1
-#     rand = randint(0, lengo)
-#     togo = togolst[rand]
-#
-#     print('result:', result)
-#     if togo == "right":
-#         moveRight(agent)
-#     elif togo == "left":
-#         moveLeft(agent)
-#     elif togo == "forward":
-#         moveStraight(agent)
-#     elif togo == "back":
-#         moveBack(agent)
-
 
 def getLayout(name):
-    matrix = tryToLoad("../layouts/" + name)
+    matrix = tryToLoad("layouts/" + name)
     return matrix
 
 def tryToLoad(fullname):
@@ -366,15 +269,11 @@ def tryToLoad(fullname):
     f.close()
     return Matrix
 
-level_mat = getLayout("smallClassic.lay")
+level_mat = getLayout("testClassic.lay")
 
-def drawItems():
-    xml = ""
-    for i in range(NUM_ITEMS):
-        x = str(random.randint(-17,17))
-        z = str(random.randint(-17,17))
-        xml += '<DrawItem x="' + x + '" y="224" z="' + z + '" type="apple"/>'
-    return xml
+def drawItems(x, z):
+    return  '<DrawItem x="' + str(x) + '" y="56" z="' + str(z) + '" type="apple"/>'
+
 
 def GenBlock(x, y, z, blocktype):
     return '<DrawBlock x="' + str(x) + '" y="' + str(y) + '" z="' + str(z) + '" type="' + blocktype + '"/>'
@@ -441,7 +340,7 @@ def getXML(reset):
                   <DrawingDecorator>
                     ''' + mazeCreator() + '''
                   </DrawingDecorator>
-                  <ServerQuitFromTimeUp timeLimitMs="45000"/>
+                  <ServerQuitFromTimeUp timeLimitMs="100000"/>
                   <ServerQuitWhenAnyAgentFinishes/>
                 </ServerHandlers>
               </ServerSection>
@@ -505,7 +404,7 @@ def getXML(reset):
     return xml
 
 client_pool = MalmoPython.ClientPool()
-for x in range(10001, 10001 + NUM_AGENTS + 1):
+for x in range(10000, 10000 + NUM_AGENTS + 1):
     client_pool.add( MalmoPython.ClientInfo('127.0.0.1', x) )
 
 
@@ -529,6 +428,8 @@ current_pos = [(0,0) for x in range(NUM_AGENTS)]
 timed_out = False
 g_score = 0
 while not timed_out and food:
+    print('global score:', g_score)
+
     for i in range(NUM_AGENTS):
         ah = agent_hosts[i]
         world_state = ah.getWorldState()
@@ -540,33 +441,53 @@ while not timed_out and food:
 
             if "XPos" in ob and "ZPos" in ob:
                 current_pos[i] = (ob[u'XPos'], ob[u'ZPos'])
+                print("First pos ", current_pos[i])
                 #print(current_pos[i])
             if ob['Name'] == 'Enemy':
-                print('enemy moveing:')
-                enemyAgentMove(ah)
+                print('enemy moving:')
+                enemyAgentMove(ah, world_state)
+                ah = agent_hosts[i]
+                world_state = ah.getWorldState()
+                if world_state.is_mission_running and world_state.number_of_observations_since_last_state > 0:
+                    msg = world_state.observations[-1].text
+                    ob = json.loads(msg)
+                if "XPos" in ob and "ZPos" in ob:
+                    current_pos[i] = (ob[u'XPos'], ob[u'ZPos'])
+                    print("Second pos ", current_pos[i])
                 eCurr['x'] = current_pos[i][0]
                 eCurr['z'] = current_pos[i][1]
                 if (current_pos[i] == (pCurr['x'], pCurr['z'])):
                     g_score -= 100
                     timed_out = True
                     break
-
+                time.sleep(0.1)
             if ob['Name'] == 'Player':
-                if((current_pos[i][0]-0.5,current_pos[i][1]-0.5) in food):
-                    print("Food found!")
-                    food.remove((current_pos[i][0]-0.5,current_pos[i][1]-0.5))
-                    g_score += 10
-                if(current_pos[i] == (eCurr['x'], eCurr['z'])):
+                if (current_pos[i] == (eCurr['x'], eCurr['z'])):
                     g_score -= 100
                     timed_out = True
                     break
+
                 print('agent moving')
-                #expectimaxAgentMove(ah, current_pos[i], world_state)
-                minimaxAgentMove(ah, current_pos[i], world_state)
-                #reflexAgentMove(ah, current_pos[i], world_state)
+                reflexAgentMove(ah, current_pos[i], world_state)
+                ah = agent_hosts[i]
+                world_state = ah.getWorldState()
+                if world_state.is_mission_running and world_state.number_of_observations_since_last_state > 0:
+                    msg = world_state.observations[-1].text
+                    ob = json.loads(msg)
+                if "XPos" in ob and "ZPos" in ob:
+                    current_pos[i] = (ob[u'XPos'], ob[u'ZPos'])
+                    print("Second pos ", current_pos[i])
+                if ((current_pos[i][0] - 0.5, current_pos[i][1] - 0.5) in food):
+                    print("Food found!")
+                    food.remove((current_pos[i][0] - 0.5, current_pos[i][1] - 0.5))
+                    g_score += 10
+                if (current_pos[i] == (eCurr['x'], eCurr['z'])):
+                    g_score -= 100
+                    timed_out = True
+                    break
+                g_score -= 1
                 pCurr['x'] = current_pos[i][0]
                 pCurr['z'] = current_pos[i][1]
-                grid = ob.get(u'floor3x3W', 0)
 
     time.sleep(0.05)
 print(food)
