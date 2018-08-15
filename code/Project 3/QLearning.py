@@ -45,9 +45,14 @@ class TabQAgent(object):
         """Change q_table to reflect what we have learnt."""
 
                     ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
+
     def updateQTableFromTerminatingState(self, reward):
         """Change q_table to reflect what we have learnt upon reaching the terminal state."""
 
+                    ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
                     ### YOUR CODE HERE ###
 
     def act(self, world_state, agent_host, current_r):
@@ -70,12 +75,16 @@ class TabQAgent(object):
 
         # select the next action (find a s.t. self.actions[a] == next action)
 
-                        ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
 
 
         # try to send the selected action to agent, only update prev_s if this succeeds
 
-                        ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
+                    ### YOUR CODE HERE ###
 
         return current_r
 
@@ -88,9 +97,26 @@ class TabQAgent(object):
         self.prev_s = None
         self.prev_a = None
 
+        is_first_action = True
 
-        ### YOUR CODE HERE ###
+        # TODO complete the main loop:
+        world_state = agent_host.getWorldState()
+        while world_state.is_mission_running:
+            current_r = 0
 
+            ### YOUR CODE HERE ###
+            ### YOUR CODE HERE ###
+            ### YOUR CODE HERE ###
+
+
+        # process final reward
+        total_reward += current_r
+
+        # update Q values
+        if self.prev_s is not None and self.prev_a is not None:
+            self.updateQTableFromTerminatingState(current_r)
+
+        # used to dynamically draw the QTable in a separate window
         self.drawQ()
 
         return total_reward
