@@ -28,6 +28,7 @@ agent_hosts = [MalmoPython.AgentHost()]
 # Parse the command-line options:
 agent_hosts[0].addOptionalFlag( "debug,d", "Display debug information.")
 agent_hosts[0].addOptionalIntArgument("agents,n", "Number of agents to use, including observer.", 3)
+agent_hosts[0].addOptionalStringArgument("map,m", "Name of map to be used", "openClassic")
 
 try:
     agent_hosts[0].parse( sys.argv )
@@ -43,7 +44,7 @@ DEBUG = agent_hosts[0].receivedArgument("debug")
 INTEGRATION_TEST_MODE = agent_hosts[0].receivedArgument("test")
 agents_requested = agent_hosts[0].getIntArgument("agents")
 NUM_AGENTS = max(1, agents_requested - 1) # Will be NUM_AGENTS robots running around, plus one static observer.
-
+map_requested = agent_hosts[0].getStringArgument("map")
 # Create the rest of the agent hosts - one for each robot, plus one to give a bird's-eye view:
 agent_hosts += [MalmoPython.AgentHost() for x in range(1, NUM_AGENTS + 1) ]
 
@@ -119,26 +120,21 @@ def safeWaitForStart(agent_hosts):
 
 def moveRight(ah):
     ah.sendCommand("strafe 1")
-    time.sleep(0.2)
-
     print("moving right")
 
 
 def moveLeft(ah):
     ah.sendCommand("strafe -1")
-    time.sleep(0.2)
     print("moving left")
 
 
 def moveStraight(ah):
     ah.sendCommand("move 1")
-    time.sleep(0.2)
     print("moving straight")
 
 
 def moveBack(ah):
     ah.sendCommand("move -1")
-    time.sleep(0.2)
     print("moving backwards")
 
 
@@ -269,7 +265,7 @@ def tryToLoad(fullname):
     f.close()
     return Matrix
 
-level_mat = getLayout("testClassic.lay")
+level_mat = getLayout(map_requested + ".lay")
 
 def drawItems(x, z):
     return  '<DrawItem x="' + str(x) + '" y="56" z="' + str(z) + '" type="apple"/>'
