@@ -28,7 +28,7 @@ agent_hosts = [MalmoPython.AgentHost()]
 # Parse the command-line options:
 agent_hosts[0].addOptionalFlag( "debug,d", "Display debug information.")
 agent_hosts[0].addOptionalIntArgument("agents,n", "Number of agents to use, including observer.", 3)
-agent_hosts[0].addOptionalStringArgument("map,m", "Name of map to be used", "openClassic")
+agent_hosts[0].addOptionalStringArgument("map,m", "Name of map to be used", "multiAgent")
 
 try:
     agent_hosts[0].parse( sys.argv )
@@ -255,7 +255,7 @@ globalDepth = 2
 
 
 def getLayout(name):
-    matrix = tryToLoad("layouts/" + name)
+    matrix = tryToLoad("../layouts/" + name)
     return matrix
 
 def tryToLoad(fullname):
@@ -400,7 +400,7 @@ def getXML(reset):
     return xml
 
 client_pool = MalmoPython.ClientPool()
-for x in range(10000, 10000 + NUM_AGENTS + 1):
+for x in range(10001, 10001 + NUM_AGENTS + 1):
     client_pool.add( MalmoPython.ClientInfo('127.0.0.1', x) )
 
 
