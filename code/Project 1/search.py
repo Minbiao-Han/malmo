@@ -15,6 +15,22 @@ import BFS
 import DFS
 import A_Star
 
+
+agent_host = MalmoPython.AgentHost()
+agent_host.addOptionalStringArgument("map, m", "Name of map to be used", "smallMaze")
+map_requested = agent_host.getStringArgument("map")
+
+
+try:
+    agent_host.parse(sys.argv)
+except RuntimeError as e:
+    print('ERROR:', e)
+    print(agent_host.getUsage())
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print(agent_host.getUsage())
+    exit(0)
+
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 else:
@@ -24,7 +40,7 @@ else:
 
 
 def getLayout(name):
-    matrix = tryToLoad("layouts/" + name)
+    matrix = tryToLoad("../layouts/" + name)
     return matrix
 
 
@@ -36,7 +52,8 @@ def tryToLoad(fullname):
     return Matrix
 
 
-level_mat = getLayout("smallMaze.lay")
+level_mat = getLayout(map_requested + ".lay")
+
 
 def GenBlock(x, y, z, blocktype):
     return '<DrawBlock x="' + str(x) + '" y="' + str(y) + '" z="' + str(z) + '" type="' + blocktype + '"/>'
@@ -106,17 +123,6 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
               </AgentSection>
             </Mission>'''
 my_mission = MalmoPython.MissionSpec(missionXML, True)
-
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse(sys.argv)
-except RuntimeError as e:
-    print('ERROR:', e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 def moveRight():
     agent_host.sendCommand("strafe 1")
