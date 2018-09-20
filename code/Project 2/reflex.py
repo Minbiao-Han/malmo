@@ -21,20 +21,20 @@ import numpy as np
 ### You should define your evaluation function here
 # Inputs: pos - tuple (position of player), enemy_pos - tuple, food - array
 # Output: your evaluation score
-def evalfuncReflex(pos, enemy_pos, food):
+def evalfuncReflex(pos, enemy_pos, dest_blocks):
     ### YOUR CODE HERE ###
     return
 
 ### Implement a way for the agent to decide which way to move
 # Inputs: pos - tuple (position of player), world_state, enemy_pos - tuple, food - array
 # Output: direction in which to move (can be a string, int, or whatever way you want to implement it)
-def chooseAction(pos, wstate, food, enemy_pos):
+def chooseAction(pos, wstate, dest_blocks, enemy_pos):
     ### YOUR CODE HERE ###
     return
 
 ### Move the agent here
 # Output: void (should just call the correct movement function)
-def reflexAgentMove(agent, pos, wstate, food, enemy_pos):
+def reflexAgentMove(agent, pos, wstate, dest_blocks, enemy_pos):
     ### YOUR CODE HERE ###
 
 
