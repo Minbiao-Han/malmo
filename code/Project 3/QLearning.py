@@ -40,16 +40,20 @@ class TabQAgent(object):
         self.q_table = {}
         self.canvas = None
         self.root = None
-
+        
+    ### Change q_table to reflect what we have learnt.
+    # Inputs: reward - int, current_state - int, prev_state - int, prev_a - int
+    # Output: updated q_table
     def updateQTable(self, reward, current_state, prev_state, prev_a):
-        """Change q_table to reflect what we have learnt."""
 
                     ### YOUR CODE HERE ###
                     ### YOUR CODE HERE ###
                     ### YOUR CODE HERE ###
-
-    def updateQTableFromTerminatingState(self, reward):
-        """Change q_table to reflect what we have learnt upon reaching the terminal state."""
+                    
+    ### Change q_table to reflect what we have learnt upon reaching the terminal state.
+    # Input: reward - int, prev_state - int, prev_a - int
+    # Output: updated q_table
+    def updateQTableFromTerminatingState(self, reward, prev_state, prev_a):
 
                     ### YOUR CODE HERE ###
                     ### YOUR CODE HERE ###
