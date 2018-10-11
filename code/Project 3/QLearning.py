@@ -154,7 +154,7 @@ class TabQAgent(object):
 
         # update Q values
         if self.prev_s is not None and self.prev_a is not None:
-            self.updateQTableFromTerminatingState(current_r)
+            self.updateQTableFromTerminatingState(current_r, self.prev_s, self.prev_a)
 
         # used to dynamically draw the QTable in a separate window
         self.drawQ()
